@@ -1,13 +1,12 @@
 const express = require("express");
 const cors = require("cors");
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 
 const app = express();
 const port = 3000;
 
 app.use(cors());
 app.use(express.json());
-
 
 const uri =
   "mongodb+srv://server-2:UjBUWVGjhGcWQQ3m@cluster0.rlr9txn.mongodb.net/?appName=Cluster0";
@@ -31,14 +30,40 @@ async function run() {
     app.get("/", (req, res) => {
       res.send("Hello World!");
     });
-    app.get("/users",async (req, res) => {
-        const cursor = movies.find();
-        const allValues = await cursor.toArray();
-        res.send(allValues);
+    app.get("/users", async (req, res) => {
+      const cursor = movies.find();
+      const allValues = await cursor.toArray();
+      res.send(allValues);
     });
-    app.post("/usersPost",async (req, res) => {
+    app.post("/usersPost", async (req, res) => {
       const newUser = req.body;
       const result = await movies.insertOne(newUser);
+      res.send(result);
+    });
+    app.get("/user/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await movies.findOne(query);
+      res.send(result);
+    });
+    app.delete("/user/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await movies.deleteOne(query);
+      res.send(result);
+    });
+    app.patch("/userUpdata/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const update = req.body;
+      const updatUser = {
+        $set:{
+          name:update.name,
+          email:update.email
+        }
+      }
+      const options = {};
+      const result = await movies.updateOne(query, updatUser, options);
       res.send(result);
     });
     // Send a ping to confirm a successful connection
