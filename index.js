@@ -1,4 +1,4 @@
-const express = require("express");
+const express =require("express")
 const cors = require("cors");
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 
@@ -26,10 +26,30 @@ async function run() {
     await client.connect();
     const database = client.db("sample_mflix");
     const movies = database.collection("movies");
+    const products = database.collection("products");
 
     app.get("/", (req, res) => {
       res.send("Hello World!");
     });
+
+
+
+
+    // client not make
+
+    app.get("/products", async (req, res) => {
+      const cursor = products.find().sort({ price_min: -1, title: 1 , category: 1  }).skip(1).limit(5);
+      const allValues = await cursor.toArray();
+      res.send(allValues);
+    });
+    app.post("/productPost", async (req, res) => {
+      const newUser = req.body;
+      const result = await products.insertOne(newUser);
+      res.send(result);
+    });
+
+// client not make
+
     app.get("/users", async (req, res) => {
       const cursor = movies.find();
       const allValues = await cursor.toArray();
